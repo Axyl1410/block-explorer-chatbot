@@ -109,8 +109,8 @@ export default function Home() {
         open={isOpen}
         onOpenChange={setIsOpen}
         title="Account Settings"
-        trigger={<Button className="primary-btn">Settings</Button>}
-        closeButton={<Button className="secondary-btn">Done</Button>}
+        trigger={<Button>Settings</Button>}
+        closeButton={<Button>Done</Button>}
       >
         <div className="">
           <p>This is the content of my dialog</p>
