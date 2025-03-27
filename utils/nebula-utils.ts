@@ -1,10 +1,16 @@
 import { apiRequest } from "./apiRequest";
+import { validate as validateUUID } from "uuid";
 
 export async function createSession(
   title = "Smart Contract Explorer",
 ): Promise<string> {
   const response = await apiRequest("/session", "POST", { title });
   return response.result.id;
+}
+
+// Helper function to validate UUID
+function isValidUUID(id: string): boolean {
+  return validateUUID(id);
 }
 
 export async function queryContract(
@@ -54,6 +60,10 @@ export async function handleUserMessage(
   chainId: number,
   contractAddress: string,
 ): Promise<string> {
+  if (!isValidUUID(sessionId)) {
+    throw new Error("Invalid session ID format. Expected UUID format.");
+  }
+
   const response = await apiRequest("/chat", "POST", {
     message: userMessage,
     session_id: sessionId,
@@ -69,6 +79,10 @@ export async function handleGeneralUserMessage(
   userMessage: string,
   sessionId: string,
 ): Promise<string> {
+  if (!isValidUUID(sessionId)) {
+    throw new Error("Invalid session ID format. Expected UUID format.");
+  }
+
   const response = await apiRequest("/chat", "POST", {
     message: userMessage,
     session_id: sessionId,
