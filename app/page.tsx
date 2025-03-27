@@ -1,6 +1,13 @@
+"use client";
+
+import ResponsiveDialog from "@/components/common/responsive-dialog";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import React from "react";
 
 export default function Home() {
+  const [isOpen, setIsOpen] = React.useState(false);
+
   return (
     <div className="grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
       <main className="row-start-2 flex flex-col items-center gap-[32px] sm:items-start">
@@ -98,6 +105,17 @@ export default function Home() {
           Go to nextjs.org →
         </a>
       </footer>
+      <ResponsiveDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title="Account Settings"
+        trigger={<Button className="primary-btn">Settings</Button>}
+        closeButton={<Button className="secondary-btn">Done</Button>}
+      >
+        <div className="">
+          <p>This is the content of my dialog</p>
+        </div>
+      </ResponsiveDialog>
     </div>
   );
 }
