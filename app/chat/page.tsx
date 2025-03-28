@@ -1,5 +1,6 @@
 "use client";
 
+import { Loading } from "@/components/common/loading";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
@@ -189,42 +190,46 @@ export default function ChatPage() {
         {/* Chat area */}
         <div className="flex w-3/4 flex-col">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {messages.length > 0 ? (
-              messages.map((msg) => (
-                <div key={msg._id} className="mb-4">
-                  {msg.userMessage && (
-                    <div className="mb-2 flex justify-end">
-                      <div className="max-w-[80%] rounded-lg bg-blue-100 p-3">
-                        {msg.userMessage}
+          <ScrollArea className="h-[calc(100vh-141px)] overflow-y-auto">
+            <div className="flex-1 p-4">
+              {messages.length > 0 ? (
+                messages.map((msg) => (
+                  <div key={msg._id} className="mb-4">
+                    {msg.userMessage && (
+                      <div className="mb-2 flex justify-end">
+                        <div className="max-w-[80%] rounded-lg bg-blue-100 p-3">
+                          {msg.userMessage}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {msg.botMessage && (
-                    <div className="mb-2 flex justify-start">
-                      <div className="max-w-[80%] rounded-lg bg-gray-100 p-3">
-                        <ScrollArea>
-                          <ReactMarkdown>{msg.botMessage}</ReactMarkdown>
-                          <ScrollBar orientation="horizontal" />
-                        </ScrollArea>
+                    )}
+                    {msg.botMessage && (
+                      <div className="mb-2 flex justify-start">
+                        <div className="max-w-[80%] rounded-lg bg-gray-100 p-3">
+                          <ScrollArea>
+                            <ReactMarkdown>{msg.botMessage}</ReactMarkdown>
+                            <ScrollBar orientation="horizontal" />
+                          </ScrollArea>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="flex h-full items-center justify-center text-gray-500">
+                  {sessionId
+                    ? "No messages yet. Start a conversation!"
+                    : "Select a conversation or start a new one"}
                 </div>
-              ))
-            ) : (
-              <div className="flex h-full items-center justify-center text-gray-500">
-                {sessionId
-                  ? "No messages yet. Start a conversation!"
-                  : "Select a conversation or start a new one"}
-              </div>
-            )}
-            {isLoading && (
-              <div className="mb-2 flex justify-start">
-                <div className="rounded-lg bg-gray-100 p-3">Thinking...</div>
-              </div>
-            )}
-          </div>
+              )}
+              {isLoading && (
+                <div className="mb-2 flex justify-start">
+                  <div className="rounded-lg bg-gray-100 p-3">
+                    <Loading text="Thinking..." />
+                  </div>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
 
           {/* Input area */}
           <div className="border-t p-4">
