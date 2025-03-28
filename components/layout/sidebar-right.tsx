@@ -19,8 +19,8 @@ export function SidebarRight() {
         <SidebarGroup>
           <div className="mb-2 font-bold">Chain IDs</div>
           <ComboboxDemo />
-          <div className="mt-4 mb-2 font-bold">Address</div>
-          <Input className="bg-background" placeholder="Address" />
+          <div className="mt-4 mb-2 font-bold">Contract Address</div>
+          <Input className="bg-background" placeholder="0x..." />
           <div className="mt-4 flex justify-end">
             <Button className="w-fit">Update Context</Button>
           </div>

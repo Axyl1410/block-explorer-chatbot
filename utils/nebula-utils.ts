@@ -8,6 +8,20 @@ export async function createSession(
   return response.result.id;
 }
 
+export async function deleteSession(sessionId: string): Promise<boolean> {
+  if (!isValidUUID(sessionId)) {
+    throw new Error("Invalid session ID format. Expected UUID format.");
+  }
+
+  try {
+    await apiRequest(`/session/${sessionId}`, "DELETE");
+    return true;
+  } catch (error) {
+    console.error(`Failed to delete session ${sessionId}:`, error);
+    return false;
+  }
+}
+
 // Helper function to validate UUID
 function isValidUUID(id: string): boolean {
   return validateUUID(id);

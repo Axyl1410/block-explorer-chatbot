@@ -4,9 +4,11 @@ import { Loading } from "@/components/common/loading";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { getErrorMessage } from "@/lib/utils";
 import { Conversation, Message } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
 
 export default function ChatPage() {
   const [userId] = useState<string>("user123"); // This should come from authentication
@@ -54,6 +56,8 @@ export default function ChatPage() {
   // Create a new conversation
   const startNewConversation = async () => {
     try {
+      setIsLoading(true);
+
       const res = await fetch("/api/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,13 +68,33 @@ export default function ChatPage() {
       });
 
       const data = await res.json();
+
       if (data.success) {
         setSessionId(data.data.sessionId);
         setMessages([]);
+
+        // Show notification if we reached the limit
+        if (data.reachedLimit) {
+          toast.warning(
+            "Your oldest conversation was removed to make room for this new one.",
+          );
+        }
+
         fetchConversations();
+      } else {
+        console.error("Error creating conversation:", data.error);
+
+        toast.error("Error creating conversation", {
+          description: data.error,
+        });
       }
     } catch (error) {
       console.error("Error creating conversation:", error);
+      toast.error("Error creating conversation", {
+        description: getErrorMessage(error),
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -26,10 +26,7 @@ async function connectToDatabase(): Promise<mongoose.Connection> {
       bufferCommands: false,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-      // Auto reconnect if connection is lost
-      autoReconnect: true,
-      reconnectTries: Number.MAX_VALUE,
-      reconnectInterval: 1000,
+      // Connection retry is handled automatically in newer MongoDB driver versions
     };
 
     mongoose.connection.on("disconnected", () => {
