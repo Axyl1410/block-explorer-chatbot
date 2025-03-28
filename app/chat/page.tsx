@@ -6,7 +6,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { getErrorMessage } from "@/lib/utils";
 import { Conversation, Message } from "@/types";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
@@ -17,6 +17,16 @@ export default function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   // Fetch message history for a session
   const fetchMessages = async (selectedSessionId: string) => {
@@ -24,12 +34,17 @@ export default function ChatPage() {
       const res = await fetch(`/api/chat?sessionId=${selectedSessionId}`);
       const data = await res.json();
       if (data.success) {
-        setMessages(data.data);
+        // Access nested messages data
+        setMessages(data.data.messages);
       } else {
         console.error("Error fetching messages:", data.error);
+        toast.error("Failed to load messages", {
+          description: data.error,
+        });
       }
     } catch (error) {
       console.error("Error fetching messages:", error);
+      toast.error("Failed to load messages");
     }
   };
 
@@ -70,11 +85,12 @@ export default function ChatPage() {
       const data = await res.json();
 
       if (data.success) {
-        setSessionId(data.data.sessionId);
+        // Access conversation data from nested response
+        setSessionId(data.data.conversation.sessionId);
         setMessages([]);
 
         // Show notification if we reached the limit
-        if (data.reachedLimit) {
+        if (data.data.reachedLimit) {
           toast.warning(
             "Your oldest conversation was removed to make room for this new one.",
           );
@@ -139,16 +155,24 @@ export default function ChatPage() {
         }
 
         // Fetch the full updated conversation
-        fetchMessages(data.data.sessionId);
+        await fetchMessages(data.data.sessionId);
         fetchConversations();
       } else {
         console.error("Error sending message:", data.error);
 
         // Remove the optimistic update if there was an error
         setMessages((prev) => prev.filter((msg) => msg._id !== tempId));
+
+        toast.error("Failed to send message", {
+          description: data.error,
+        });
       }
     } catch (error) {
       console.error("Error sending message:", error);
+      toast.error("Failed to send message");
+
+      // Remove optimistic update
+      setMessages((prev) => prev.filter((msg) => msg._id.startsWith("temp-")));
     } finally {
       setIsLoading(false);
     }
@@ -181,8 +205,12 @@ export default function ChatPage() {
         <div className="w-1/4 overflow-y-auto border-r p-4">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-semibold">Chat History</h2>
-            <Button onClick={startNewConversation} variant={"outline"}>
-              New Chat
+            <Button
+              onClick={startNewConversation}
+              variant={"outline"}
+              disabled={isLoading}
+            >
+              {isLoading ? "Creating..." : "New Chat"}
             </Button>
           </div>
 
@@ -190,10 +218,10 @@ export default function ChatPage() {
             {conversations.map((conv) => (
               <li
                 key={conv.sessionId}
-                onClick={() => setSessionId(conv.sessionId)}
+                onClick={() => !isLoading && setSessionId(conv.sessionId)}
                 className={`cursor-pointer rounded p-2 hover:bg-gray-100 ${
                   sessionId === conv.sessionId ? "bg-blue-100" : ""
-                }`}
+                } ${isLoading ? "pointer-events-none opacity-50" : ""}`}
               >
                 <div className="font-medium">
                   {conv.title || `Chat ${conv._id.substring(0, 8)}`}
@@ -252,6 +280,7 @@ export default function ChatPage() {
                   </div>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
 
@@ -263,12 +292,13 @@ export default function ChatPage() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder="Type your message..."
-                // className="flex-1 rounded-l border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 disabled={!sessionId || isLoading}
+                className="min-h-[80px]"
               />
               <Button
                 onClick={sendMessage}
                 disabled={!input || isLoading || !sessionId}
+                className="w-full"
               >
                 {isLoading ? "Sending..." : "Send"}
               </Button>

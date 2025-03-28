@@ -28,7 +28,7 @@ const items = [
   },
 ];
 
-export function AppSidebar() {
+export function SidebarLeft() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>

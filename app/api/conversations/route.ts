@@ -1,9 +1,13 @@
 import connectToDatabase from "@/lib/mongodb";
-import { getErrorMessage } from "@/lib/utils";
+import {
+  createResponse,
+  createErrorResponse,
+  getErrorMessage,
+} from "@/lib/utils";
 import Conversation from "@/models/conversation";
 import Message from "@/models/message";
 import { createSession, deleteSession } from "@/utils/nebula-utils";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,23 +21,17 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get("userId");
 
     if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "userId is required" },
-        { status: 400 },
-      );
+      return createErrorResponse("userId is required", 400);
     }
 
     const conversations = await Conversation.find({ userId })
       .sort({ lastChatTime: -1 })
       .lean();
 
-    return NextResponse.json({ success: true, data: conversations });
+    return createResponse(conversations);
   } catch (error) {
     console.error("Error fetching conversations:", error);
-    return NextResponse.json(
-      { success: false, error: getErrorMessage(error) },
-      { status: 500 },
-    );
+    return createErrorResponse(getErrorMessage(error), 500);
   }
 }
 
@@ -43,17 +41,16 @@ export async function POST(req: NextRequest) {
     const { userId, title } = await req.json();
 
     if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "userId is required" },
-        { status: 400 },
-      );
+      return createErrorResponse("userId is required", 400);
     }
 
     // Count existing conversations for this user
     const conversationCount = await Conversation.countDocuments({ userId });
 
     // If the user already has the maximum number of conversations
+    let reachedLimit = false;
     if (conversationCount >= MAX_CONVERSATIONS_PER_USER) {
+      reachedLimit = true;
       // Find the oldest conversation by lastChatTime
       const oldestConversation = await Conversation.findOne({ userId })
         .sort({ lastChatTime: 1 })
@@ -98,23 +95,60 @@ export async function POST(req: NextRequest) {
       lastChatTime: new Date(),
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: conversation,
-        reachedLimit: conversationCount >= MAX_CONVERSATIONS_PER_USER,
-        message:
-          conversationCount >= MAX_CONVERSATIONS_PER_USER
-            ? "Reached maximum conversations limit. Oldest conversation was removed."
-            : undefined,
-      },
-      { status: 201 },
-    );
+    // Create response with additional metadata
+    const responseData = {
+      conversation,
+      reachedLimit,
+      message: reachedLimit
+        ? "Reached maximum conversations limit. Oldest conversation was removed."
+        : undefined,
+    };
+
+    return createResponse(responseData, true, 201);
   } catch (error) {
     console.error("Error creating conversation:", error);
-    return NextResponse.json(
-      { success: false, error: getErrorMessage(error) },
-      { status: 500 },
-    );
+    return createErrorResponse(getErrorMessage(error), 500);
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    await connectToDatabase();
+    const { searchParams } = new URL(req.url);
+    const sessionId = searchParams.get("sessionId");
+    const userId = searchParams.get("userId");
+
+    if (!sessionId || !userId) {
+      return createErrorResponse("sessionId and userId are required", 400);
+    }
+
+    // Find the conversation
+    const conversation = await Conversation.findOne({ sessionId, userId });
+
+    if (!conversation) {
+      return createErrorResponse("Conversation not found", 404);
+    }
+
+    // Delete from Nebula API
+    try {
+      await deleteSession(sessionId);
+    } catch (deleteError) {
+      console.error(
+        `Failed to delete Nebula session: ${sessionId}`,
+        deleteError,
+      );
+      // Continue with database cleanup even if Nebula API call fails
+    }
+
+    // Delete from our database
+    await Conversation.deleteOne({ sessionId, userId });
+
+    // Delete associated messages
+    await Message.deleteMany({ sessionId });
+
+    return createResponse({ deleted: true, sessionId });
+  } catch (error) {
+    console.error("Error deleting conversation:", error);
+    return createErrorResponse(getErrorMessage(error), 500);
   }
 }

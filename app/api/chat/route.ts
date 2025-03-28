@@ -1,5 +1,9 @@
 import connectToDatabase from "@/lib/mongodb";
-import { getErrorMessage } from "@/lib/utils";
+import {
+  createResponse,
+  createErrorResponse,
+  getErrorMessage,
+} from "@/lib/utils";
 import Conversation from "@/models/conversation";
 import Message from "@/models/message";
 import {
@@ -7,7 +11,7 @@ import {
   handleGeneralUserMessage,
   handleUserMessage,
 } from "@/utils/nebula-utils";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -24,10 +28,7 @@ export async function POST(req: NextRequest) {
     } = await req.json();
 
     if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "userId is required" },
-        { status: 400 },
-      );
+      return createErrorResponse("userId is required", 400);
     }
 
     let sessionId;
@@ -163,40 +164,26 @@ export async function POST(req: NextRequest) {
           { new: true },
         );
 
-        return NextResponse.json(
+        return createResponse(
           {
-            success: true,
-            data: {
-              userMessage: userMessageDoc,
-              botMessage: botMessageDoc,
-              sessionId,
-              isNewSession,
-            },
+            userMessage: userMessageDoc,
+            botMessage: botMessageDoc,
+            sessionId,
+            isNewSession,
           },
-          { status: 201 },
+          true,
+          201,
         );
       } else {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "No user message provided",
-          },
-          { status: 400 },
-        );
+        return createErrorResponse("No user message provided", 400);
       }
     } catch (error) {
       console.error("Session handling error:", error);
-      return NextResponse.json(
-        { success: false, error: getErrorMessage(error) },
-        { status: 500 },
-      );
+      return createErrorResponse(getErrorMessage(error), 500);
     }
   } catch (error) {
     console.error("Error processing message:", error);
-    return NextResponse.json(
-      { success: false, error: getErrorMessage(error) },
-      { status: 500 },
-    );
+    return createErrorResponse(getErrorMessage(error), 500);
   }
 }
 
@@ -208,19 +195,13 @@ export async function GET(req: NextRequest) {
     const sessionId = searchParams.get("sessionId");
 
     if (!sessionId) {
-      return NextResponse.json(
-        { success: false, error: "sessionId is required" },
-        { status: 400 },
-      );
+      return createErrorResponse("sessionId is required", 400);
     }
 
     // Check if the session exists
     const conversation = await Conversation.findOne({ sessionId });
     if (!conversation) {
-      return NextResponse.json(
-        { success: false, error: "Session not found" },
-        { status: 404 },
-      );
+      return createErrorResponse("Session not found", 404);
     }
 
     // Get messages for this session
@@ -228,16 +209,12 @@ export async function GET(req: NextRequest) {
       .sort({ timestamp: 1 })
       .lean();
 
-    return NextResponse.json({
-      success: true,
-      data: messages,
+    return createResponse({
+      messages,
       conversation,
     });
   } catch (error) {
     console.error("Error fetching messages:", error);
-    return NextResponse.json(
-      { success: false, error: getErrorMessage(error) },
-      { status: 500 },
-    );
+    return createErrorResponse(getErrorMessage(error), 500);
   }
 }

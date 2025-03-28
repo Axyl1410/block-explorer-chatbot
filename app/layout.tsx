@@ -1,20 +1,20 @@
-import { AppSidebar } from "@/components/layout/app-sidebar";
+import { SidebarLeft } from "@/components/layout/sidebar-left";
+import { SidebarRight } from "@/components/layout/sidebar-right";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import Providers from "./provider";
-import { SidebarRight } from "@/components/layout/sidebar-right";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  fallback: ["system-ui", "sans-serif"],
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -30,14 +30,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={cn("antialiased", geistSans.variable, geistMono.variable)}
+        className={cn(
+          "font-[family-name:var(--font-poppins)] antialiased",
+          poppins.variable,
+        )}
       >
         <Providers>
-          <AppSidebar />
+          <SidebarLeft />
           <SidebarInset>
-            <header className="sticky top-0">
-              <SidebarTrigger />
-            </header>
+            <SidebarTrigger className="sticky top-0" />
             <main className="w-full">{children}</main>
           </SidebarInset>
           <SidebarRight />

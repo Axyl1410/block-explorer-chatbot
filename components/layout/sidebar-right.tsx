@@ -13,13 +13,13 @@ export function SidebarRight() {
     <Sidebar side="right">
       <SidebarContent>
         <SidebarHeader>
-          <div className="font-bold">Context</div>
+          <div className="font-semibold">Context</div>
           <p className="text-sm">Provide context to Nebula for your prompts</p>
         </SidebarHeader>
         <SidebarGroup>
-          <div className="mb-2 font-bold">Chain IDs</div>
+          <div className="mb-2 font-semibold">Chain IDs</div>
           <ComboboxDemo />
-          <div className="mt-4 mb-2 font-bold">Contract Address</div>
+          <div className="mt-4 mb-2 font-semibold">Contract Address</div>
           <Input className="bg-background" placeholder="0x..." />
           <div className="mt-4 flex justify-end">
             <Button className="w-fit">Update Context</Button>

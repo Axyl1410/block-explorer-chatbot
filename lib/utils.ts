@@ -11,9 +11,8 @@ export const createResponse = (data: any, success = true, status = 200) => {
   return NextResponse.json({ success, data }, { status });
 };
 
-// Error response utility function
-export const createErrorResponse = (message: string, status = 400) => {
-  return NextResponse.json({ success: false, message }, { status });
+export const createErrorResponse = (error: string, status = 400) => {
+  return NextResponse.json({ success: false, error }, { status });
 };
 
 export const getErrorMessage = (error: unknown): string => {

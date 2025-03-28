@@ -1,5 +1,6 @@
+import { createResponse, createErrorResponse } from "@/lib/utils";
 import { createSession, handleGeneralUserMessage } from "@/utils/nebula-utils";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
@@ -9,10 +10,7 @@ export async function POST(req: NextRequest) {
     let sessionId = initialSessionId;
 
     if (!userMessage) {
-      return NextResponse.json(
-        { error: "Missing userMessage" },
-        { status: 400 },
-      );
+      return createErrorResponse("Missing userMessage", 400);
     }
 
     if (!sessionId) {
@@ -23,12 +21,10 @@ export async function POST(req: NextRequest) {
       userMessage,
       sessionId,
     );
-    return NextResponse.json({ message: responseMessage, sessionId });
+
+    return createResponse({ message: responseMessage, sessionId });
   } catch (error) {
     console.error("Error handling user message:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    return createErrorResponse("Internal Server Error", 500);
   }
 }
