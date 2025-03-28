@@ -9,7 +9,7 @@ if (!MONGODB_URI) {
   );
 }
 
-// Biến toàn cục để lưu trữ trạng thái kết nối
+// Global variable to store connection state
 const cached = global as any;
 
 if (!cached.mongoose) {
@@ -24,7 +24,25 @@ async function connectToDatabase(): Promise<mongoose.Connection> {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      // Auto reconnect if connection is lost
+      autoReconnect: true,
+      reconnectTries: Number.MAX_VALUE,
+      reconnectInterval: 1000,
     };
+
+    mongoose.connection.on("disconnected", () => {
+      console.log("MongoDB disconnected, attempting to reconnect...");
+    });
+
+    mongoose.connection.on("connected", () => {
+      console.log("MongoDB connected successfully");
+    });
+
+    mongoose.connection.on("error", (err) => {
+      console.log("MongoDB connection error: ", err);
+    });
 
     cached.promise = mongoose
       .connect(MONGODB_URI as string, opts)
@@ -32,12 +50,21 @@ async function connectToDatabase(): Promise<mongoose.Connection> {
         return mongoose.connection;
       })
       .catch((err) => {
+        console.error("Failed to connect to MongoDB:", err);
+        // Clear the promise to allow retry on next call
+        cached.promise = null;
         throw err;
       });
   }
 
-  cached.conn = await cached.promise;
-  return cached.conn;
+  try {
+    cached.conn = await cached.promise;
+    return cached.conn;
+  } catch (error) {
+    // If connection fails, reset promise to try again next time
+    cached.promise = null;
+    throw error;
+  }
 }
 
 export default connectToDatabase;

@@ -44,6 +44,7 @@
 }
 
 :root {
+  --active-border: hsl(0 0% 22%);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
@@ -79,6 +80,7 @@
 }
 
 .dark {
+  --active-border: hsl(0, 0%, 100%);
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
@@ -118,5 +120,33 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer base {
+  /* Customize scrollbar for entire page */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-muted);
+    border-radius: var(--radius-sm);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-muted-foreground);
+    border-radius: var(--radius-sm);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+  }
+
+  /* Firefox */
+  html {
+    scrollbar-color: var(--color-muted-foreground) var(--color-muted);
+    scrollbar-width: thin;
   }
 }
