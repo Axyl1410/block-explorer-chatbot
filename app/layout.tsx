@@ -1,11 +1,11 @@
 import { SidebarLeft } from "@/components/layout/sidebar-left";
-import { SidebarRight } from "@/components/layout/sidebar-right";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import Providers from "./provider";
+import ScrollDown from "@/components/common/scroll-down";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -38,10 +38,12 @@ export default function RootLayout({
         <Providers>
           <SidebarLeft />
           <SidebarInset>
-            <SidebarTrigger className="sticky top-0" />
+            <header className="fixed top-0 z-10">
+              <SidebarTrigger />
+            </header>
             <main className="w-full">{children}</main>
           </SidebarInset>
-          <SidebarRight />
+          <ScrollDown />
         </Providers>
       </body>
     </html>

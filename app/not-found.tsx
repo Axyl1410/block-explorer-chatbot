@@ -18,12 +18,10 @@ export default function Page() {
               Go back home
             </Button>
           </Link>
-          <a
-            href="https://github.com/Axyl1410/"
-            className="text-primary text-sm font-semibold"
-            target="_blank"
-          >
-            Contact support <span aria-hidden="true">→</span>
+          <a href="https://github.com/Axyl1410/" target="_blank">
+            <Button variant={"ghost"} className="font-bold">
+              Contact support <span aria-hidden="true">→</span>
+            </Button>
           </a>
         </div>
       </div>

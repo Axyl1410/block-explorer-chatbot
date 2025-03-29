@@ -1,5 +1,5 @@
-import { create } from "zustand";
 import { Conversation, Message } from "@/types";
+import { create } from "zustand";
 
 interface ChatState {
   // User and session info
@@ -11,6 +11,7 @@ interface ChatState {
   conversations: Conversation[];
   input: string;
   isLoading: boolean;
+  isFetching: boolean;
 
   // Contract/Chain data
   chainId: string | null;
@@ -25,6 +26,7 @@ interface ChatState {
   setIsLoading: (isLoading: boolean) => void;
   setChainId: (chainId: string | null) => void;
   setContractAddress: (address: string | null) => void;
+  setIsFetchingConversations: (isFetching: boolean) => void;
 
   // Reset store
   reset: () => void;
@@ -40,6 +42,7 @@ export const useChatStore = create<ChatState>((set) => ({
   isLoading: false,
   chainId: null,
   contractAddress: null,
+  isFetching: false,
 
   // Actions
   setUserId: (userId) => set({ userId }),
@@ -50,6 +53,7 @@ export const useChatStore = create<ChatState>((set) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
   setChainId: (chainId) => set({ chainId }),
   setContractAddress: (contractAddress) => set({ contractAddress }),
+  setIsFetchingConversations: (isFetching) => set({ isFetching }),
 
   // Reset store to initial state except userId
   reset: () =>
@@ -62,5 +66,11 @@ export const useChatStore = create<ChatState>((set) => ({
       chainId: null,
       contractAddress: null,
       userId: state.userId, // Preserve userId
+    })),
+
+  resetContext: () =>
+    set(() => ({
+      chainId: null,
+      contractAddress: null,
     })),
 }));

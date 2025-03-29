@@ -1,5 +1,6 @@
-import { Home, MessageCircle } from "lucide-react";
+"use client";
 
+import { ConversationsList } from "@/components/chat/conversations-list";
 import {
   Sidebar,
   SidebarContent,
@@ -8,47 +9,31 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
 import { Team } from "./team";
 
-// Menu items.
-const items = [
-  {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Chat",
-    url: "/chat",
-    icon: MessageCircle,
-  },
-];
-
 export function SidebarLeft() {
+  const { toggleSidebar, isMobile } = useSidebar();
+
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="offcanvas">
       <SidebarContent>
         <SidebarHeader>
           <Team />
         </SidebarHeader>
+
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="border-b border-dashed pb-2">
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+          <SidebarGroupLabel>Conversations</SidebarGroupLabel>
+          <SidebarGroupContent className="p-2">
+            <SidebarMenu
+              onClick={() => {
+                if (isMobile) {
+                  toggleSidebar();
+                }
+              }}
+            >
+              <ConversationsList />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
