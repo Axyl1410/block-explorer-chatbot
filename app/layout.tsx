@@ -1,15 +1,21 @@
+import { ChatSetting } from "@/components/chat/chat-setting";
+import ScrollDown from "@/components/common/scroll-down";
+import { SidebarLeft } from "@/components/layout/sidebar-left";
+import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
+import Providers from "./provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  fallback: ["system-ui", "sans-serif"],
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -25,9 +31,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={cn(
+          "font-[family-name:var(--font-poppins)] antialiased",
+          poppins.variable,
+        )}
       >
-        {children}
+        <Providers>
+          <SidebarLeft />
+          <SidebarInset>
+            <header className="fixed top-0 z-10">
+              <SidebarTrigger />
+              <ChatSetting />
+            </header>
+            <main className="w-full">{children}</main>
+          </SidebarInset>
+          <ScrollDown />
+        </Providers>
       </body>
     </html>
   );
