@@ -71,7 +71,7 @@ export async function queryContract(
 export async function handleUserMessage(
   userMessage: string,
   sessionId: string,
-  chainId: number,
+  chainId: string,
   contractAddress: string,
 ): Promise<string> {
   if (!isValidUUID(sessionId)) {
@@ -82,7 +82,7 @@ export async function handleUserMessage(
     message: userMessage,
     session_id: sessionId,
     context_filter: {
-      chain_ids: [chainId.toString()],
+      chain_ids: [chainId],
       contract_addresses: [contractAddress],
     },
   });

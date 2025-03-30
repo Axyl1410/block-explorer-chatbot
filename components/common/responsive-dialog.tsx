@@ -14,6 +14,7 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -23,6 +24,7 @@ import {
 interface ResponsiveDialogProps {
   children?: React.ReactNode;
   title?: string | React.ReactNode;
+  description?: string;
   trigger?: React.ReactNode;
   closeButton?: React.ReactNode;
   content?: React.ReactNode;
@@ -79,6 +81,7 @@ const ResponsiveDialog: React.FC<ResponsiveDialogProps> = ({
   content,
   open,
   onOpenChange,
+  description,
 }) => {
   const isMobile = useIsMobile();
   const contentToDisplay = content || children;
@@ -97,6 +100,9 @@ const ResponsiveDialog: React.FC<ResponsiveDialogProps> = ({
             <DrawerHeader>
               <DrawerTitle>{title}</DrawerTitle>
             </DrawerHeader>
+            <DrawerDescription className="p-4 pt-0">
+              {description}
+            </DrawerDescription>
             <div className="px-4">{contentToDisplay}</div>
             <DrawerFooter>
               <DrawerClose asChild>{closeButton}</DrawerClose>
@@ -110,9 +116,8 @@ const ResponsiveDialog: React.FC<ResponsiveDialogProps> = ({
             <DialogHeader>
               <DialogTitle>{title}</DialogTitle>
             </DialogHeader>
-            <DialogDescription asChild>
-              <div>{contentToDisplay}</div>
-            </DialogDescription>
+            <DialogDescription>{description}</DialogDescription>
+            <div>{contentToDisplay}</div>
             <DialogFooter>
               <DialogClose asChild>{closeButton}</DialogClose>
             </DialogFooter>

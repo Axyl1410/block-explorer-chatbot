@@ -52,7 +52,7 @@ export const ConnectButton = () => {
       const userId = address.slice(2, 10);
       setUserId(userId);
     }
-  }, [account, setUserId]);
+  }, [account, , setUserId]);
 
   return (
     <>

@@ -1,8 +1,8 @@
 import { useChatStore } from "@/store/use-chat-store";
+import { ArrowUp } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { ArrowUp } from "lucide-react";
 
 export function ChatForm() {
   const {
@@ -17,6 +17,8 @@ export function ChatForm() {
     setMessages,
     isFetching,
     setIsChat,
+    chainId,
+    contractAddress,
   } = useChatStore();
 
   // Send message
@@ -39,15 +41,30 @@ export function ChatForm() {
         },
       ]);
 
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          sessionId,
-          userMessage: input,
-        }),
-      });
+      let res;
+      if (chainId && contractAddress) {
+        res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            sessionId,
+            userMessage: input,
+            chainId,
+            contractAddress,
+          }),
+        });
+      } else {
+        res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            sessionId,
+            userMessage: input,
+          }),
+        });
+      }
 
       const data = await res.json();
 

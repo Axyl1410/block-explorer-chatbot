@@ -1,7 +1,7 @@
 import connectToDatabase from "@/lib/mongodb";
 import {
-  createResponse,
   createErrorResponse,
+  createResponse,
   getErrorMessage,
 } from "@/lib/utils";
 import Conversation from "@/models/conversation";
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
             botResponse = await handleUserMessage(
               userMessage,
               sessionId,
-              Number(chainId),
+              chainId,
               contractAddress,
             );
           } else {
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
               botResponse = await handleUserMessage(
                 userMessage,
                 newSessionId,
-                Number(chainId),
+                chainId,
                 contractAddress,
               );
             } else {

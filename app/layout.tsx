@@ -1,3 +1,4 @@
+import { ChatSetting } from "@/components/chat/chat-setting";
 import ScrollDown from "@/components/common/scroll-down";
 import { SidebarLeft } from "@/components/layout/sidebar-left";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
@@ -40,6 +41,7 @@ export default function RootLayout({
           <SidebarInset>
             <header className="fixed top-0 z-10">
               <SidebarTrigger />
+              <ChatSetting />
             </header>
             <main className="w-full">{children}</main>
           </SidebarInset>

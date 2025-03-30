@@ -17,7 +17,6 @@ export const DisconnectButton = () => {
     if (account && wallet) {
       disconnect(wallet);
       reset();
-      toast.success("Disconnected from wallet");
     } else toast.error("No wallet connected");
   };
 
