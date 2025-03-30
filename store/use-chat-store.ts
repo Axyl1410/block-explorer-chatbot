@@ -12,6 +12,7 @@ interface ChatState {
   input: string;
   isLoading: boolean;
   isFetching: boolean;
+  isChat: boolean;
 
   // Contract/Chain data
   chainId: string | null;
@@ -27,6 +28,7 @@ interface ChatState {
   setChainId: (chainId: string | null) => void;
   setContractAddress: (address: string | null) => void;
   setIsFetchingConversations: (isFetching: boolean) => void;
+  setIsChat: (isChat: boolean) => void;
 
   // Reset store
   reset: () => void;
@@ -43,6 +45,7 @@ export const useChatStore = create<ChatState>((set) => ({
   chainId: null,
   contractAddress: null,
   isFetching: false,
+  isChat: false,
 
   // Actions
   setUserId: (userId) => set({ userId }),
@@ -54,10 +57,10 @@ export const useChatStore = create<ChatState>((set) => ({
   setChainId: (chainId) => set({ chainId }),
   setContractAddress: (contractAddress) => set({ contractAddress }),
   setIsFetchingConversations: (isFetching) => set({ isFetching }),
+  setIsChat: (isChat) => set({ isChat }),
 
-  // Reset store to initial state except userId
   reset: () =>
-    set((state) => ({
+    set(() => ({
       sessionId: null,
       messages: [],
       conversations: [],
@@ -65,7 +68,7 @@ export const useChatStore = create<ChatState>((set) => ({
       isLoading: false,
       chainId: null,
       contractAddress: null,
-      userId: state.userId, // Preserve userId
+      userId: "", // Preserve userId
     })),
 
   resetContext: () =>

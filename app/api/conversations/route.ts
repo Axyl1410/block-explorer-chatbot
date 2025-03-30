@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get("userId");
 
     if (!userId) {
-      return createErrorResponse("userId is required", 400);
+      return createErrorResponse("Please Login for chat", 400);
     }
 
     const conversations = await Conversation.find({ userId })

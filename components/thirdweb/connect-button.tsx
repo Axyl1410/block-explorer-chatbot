@@ -1,10 +1,11 @@
 "use client";
 
 import client from "@/lib/client";
-import { formatAddress } from "@/lib/utils";
+import { formatAddress, getErrorMessage } from "@/lib/utils";
 import { useChatStore } from "@/store/use-chat-store";
-import { ChevronsUpDown, LogOut } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { Blobbie, useActiveAccount, useConnectModal } from "thirdweb/react";
 import { Button } from "../ui/button";
 import {
@@ -15,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { DisconnectButton } from "./disconnect-button";
 
 export const ConnectButton = () => {
   const { connect } = useConnectModal();
@@ -35,8 +37,12 @@ export const ConnectButton = () => {
         description: "Connect your wallet to start using the app",
         name: "Nebula AI",
       },
+      theme: "light",
     }).catch((error) => {
       console.error("Error connecting wallet:", error);
+      toast.error("Have a error while login", {
+        description: getErrorMessage(error),
+      });
     });
   };
 
@@ -77,8 +83,7 @@ export const ConnectButton = () => {
 
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer">
-              <LogOut />
-              Log out
+              <DisconnectButton />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

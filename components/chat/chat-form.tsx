@@ -2,6 +2,7 @@ import { useChatStore } from "@/store/use-chat-store";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
+import { ArrowUp } from "lucide-react";
 
 export function ChatForm() {
   const {
@@ -15,6 +16,7 @@ export function ChatForm() {
     messages,
     setMessages,
     isFetching,
+    setIsChat,
   } = useChatStore();
 
   // Send message
@@ -22,6 +24,7 @@ export function ChatForm() {
     if (!input) return;
 
     setIsLoading(true);
+    setIsChat(true);
 
     try {
       // Add optimistic update for user message
@@ -94,6 +97,7 @@ export function ChatForm() {
       setMessages(messages.filter((msg) => !msg._id.startsWith("temp-")));
     } finally {
       setIsLoading(false);
+      setIsChat(false);
     }
   };
 
@@ -127,21 +131,7 @@ export function ChatForm() {
             disabled={!input || isLoading || !sessionId || isFetching}
             variant={"secondary"}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={24}
-              height={24}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-arrow-up size-4"
-            >
-              <path d="m5 12 7-7 7 7" />
-              <path d="M12 19V5" />
-            </svg>
+            <ArrowUp className="h-4 w-4" />
           </Button>
         </div>
       </div>

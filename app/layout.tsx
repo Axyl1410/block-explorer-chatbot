@@ -1,3 +1,4 @@
+import ScrollDown from "@/components/common/scroll-down";
 import { SidebarLeft } from "@/components/layout/sidebar-left";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -5,7 +6,6 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import Providers from "./provider";
-import ScrollDown from "@/components/common/scroll-down";
 
 const poppins = Poppins({
   variable: "--font-poppins",

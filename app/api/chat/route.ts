@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     } = await req.json();
 
     if (!userId) {
-      return createErrorResponse("userId is required", 400);
+      return createErrorResponse("Please Login for chat", 400);
     }
 
     let sessionId;

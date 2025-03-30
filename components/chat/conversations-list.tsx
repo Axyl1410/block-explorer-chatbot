@@ -152,7 +152,7 @@ export function ConversationsList() {
           onClick={startNewConversation}
           variant="outline"
           size="sm"
-          disabled={isLoading || isFetching}
+          disabled={isLoading || isFetching || !userId}
           className="bg-sidebar w-full"
         >
           {isFetching
@@ -174,8 +174,8 @@ export function ConversationsList() {
               <li
                 key={conv.sessionId}
                 onClick={() => selectConversation(conv.sessionId)}
-                className={`cursor-pointer rounded p-2 hover:bg-gray-100 ${
-                  sessionId === conv.sessionId ? "bg-sky-100" : ""
+                className={`cursor-pointer rounded p-2 transition-colors hover:bg-slate-100 ${
+                  sessionId === conv.sessionId ? "border" : ""
                 } ${isLoading || isFetchingMessages ? "pointer-events-none opacity-50" : ""}`}
               >
                 <div className="font-medium">
