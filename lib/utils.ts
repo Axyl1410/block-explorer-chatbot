@@ -18,3 +18,9 @@ export const createErrorResponse = (error: string, status = 400) => {
 export const getErrorMessage = (error: unknown): string => {
   return error instanceof Error ? error.message : "Unknown error";
 };
+
+export const formatAddress = (address: string) => {
+  return `${address.substring(0, 6)}...${address.substring(
+    address.length - 4,
+  )}`;
+};

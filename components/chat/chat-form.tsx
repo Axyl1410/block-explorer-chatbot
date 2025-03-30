@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useChatStore } from "@/store/use-chat-store";
 import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
 
 export function ChatForm() {
   const {
@@ -107,21 +107,44 @@ export function ChatForm() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Textarea
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyPress}
-        placeholder="Type your message..."
-        disabled={!sessionId || isLoading}
-        className="min-h-[80px]"
-      />
-      <Button
-        onClick={sendMessage}
-        disabled={!input || isLoading || !sessionId || isFetching}
-        className="w-full"
-      >
-        {isFetching ? "Loading..." : "Send"}
-      </Button>
+      <div className="border-border bg-card rounded-2xl border p-2">
+        <div className="max-h-[70vh] overflow-y-auto">
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder="Type your message..."
+            style={{ overflowY: "hidden", height: 56 }}
+            disabled={!sessionId || isLoading}
+            className="resize-none border-none outline-none focus:ring-0 focus-visible:ring-0"
+          />
+        </div>
+        <div className="-mt-3 flex justify-end gap-3 px-2 pb-2">
+          <Button
+            aria-label="Send"
+            type="button"
+            onClick={sendMessage}
+            disabled={!input || isLoading || !sessionId || isFetching}
+            variant={"secondary"}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={24}
+              height={24}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-arrow-up size-4"
+            >
+              <path d="m5 12 7-7 7 7" />
+              <path d="M12 19V5" />
+            </svg>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

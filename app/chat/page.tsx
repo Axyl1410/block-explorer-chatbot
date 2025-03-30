@@ -10,8 +10,14 @@ import { toast } from "sonner";
 export const dynamic = "force-dynamic";
 
 export default function ChatPage() {
-  const { sessionId, messages, isLoading, setMessages, setIsLoading } =
-    useChatStore();
+  const {
+    sessionId,
+    messages,
+    isLoading,
+    setMessages,
+    setIsLoading,
+    isFetching,
+  } = useChatStore();
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -77,7 +83,7 @@ export default function ChatPage() {
             </p>
           </div>
         )}
-        {isLoading && !isLoadingMessages && (
+        {isLoading && !isLoadingMessages && !isFetching && (
           <div className="mb-2 ml-2 flex justify-start">
             <div className="rounded-lg bg-gray-100 p-3">
               <Loading text="Thinking..." />
@@ -88,7 +94,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input area */}
-      <div className="border-t py-4">
+      <div className="pb-4">
         <ChatForm />
       </div>
     </div>

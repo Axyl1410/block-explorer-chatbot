@@ -3,7 +3,7 @@ import { create } from "zustand";
 
 interface ChatState {
   // User and session info
-  userId: string;
+  userId: string | null;
   sessionId: string | null;
 
   // Application data
@@ -34,7 +34,7 @@ interface ChatState {
 
 export const useChatStore = create<ChatState>((set) => ({
   // Initial state
-  userId: "user123", // This should come from authentication
+  userId: null,
   sessionId: null,
   messages: [],
   conversations: [],

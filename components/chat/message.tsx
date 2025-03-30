@@ -11,9 +11,7 @@ export function Message({ message }: MessageProps) {
     <div className="md:text-md mb-4 text-sm">
       {message.userMessage && (
         <div className="mb-2 flex justify-end">
-          <div className="rounded-lg bg-blue-100 p-3">
-            {message.userMessage}
-          </div>
+          <div className="rounded-lg bg-sky-100 p-3">{message.userMessage}</div>
         </div>
       )}
       {message.botMessage && (
