@@ -135,9 +135,8 @@ export function ChatForm() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
             placeholder="Type your message..."
-            style={{ overflowY: "hidden", height: 56 }}
             disabled={!sessionId || isLoading}
-            className="resize-none border-none outline-none focus:ring-0 focus-visible:ring-0"
+            className="h-14 resize-none overflow-y-hidden border-none text-sm outline-none focus:ring-0 focus-visible:ring-0 sm:text-base dark:bg-transparent"
           />
         </div>
         <div className="-mt-3 flex justify-end gap-3 px-2 pb-2">
@@ -152,7 +151,7 @@ export function ChatForm() {
           </Button>
         </div>
       </div>
-      <p className="text-muted-foreground flex items-center justify-center text-sm">
+      <p className="text-muted-foreground flex items-center justify-center text-center text-xs sm:text-sm">
         Nebula may make mistakes. Please use with discretion
       </p>
     </div>

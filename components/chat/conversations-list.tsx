@@ -174,7 +174,7 @@ export function ConversationsList() {
               <li
                 key={conv.sessionId}
                 onClick={() => selectConversation(conv.sessionId)}
-                className={`cursor-pointer rounded p-2 transition-colors hover:bg-slate-100 ${
+                className={`cursor-pointer rounded p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
                   sessionId === conv.sessionId ? "border" : ""
                 } ${isLoading || isFetchingMessages ? "pointer-events-none opacity-50" : ""}`}
               >

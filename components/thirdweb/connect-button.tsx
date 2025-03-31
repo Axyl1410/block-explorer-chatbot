@@ -4,6 +4,7 @@ import client from "@/lib/client";
 import { formatAddress, getErrorMessage } from "@/lib/utils";
 import { useChatStore } from "@/store/use-chat-store";
 import { ChevronsUpDown } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { Blobbie, useActiveAccount, useConnectModal } from "thirdweb/react";
@@ -22,6 +23,7 @@ export const ConnectButton = () => {
   const { connect } = useConnectModal();
   const account = useActiveAccount();
   const { setUserId } = useChatStore();
+  const { theme } = useTheme();
 
   const handleConnect = async () => {
     await connect({
@@ -37,7 +39,7 @@ export const ConnectButton = () => {
         description: "Connect your wallet to start using the app",
         name: "Nebula AI",
       },
-      theme: "light",
+      theme: theme === "dark" ? "dark" : "light",
     }).catch((error) => {
       console.error("Error connecting wallet:", error);
       toast.error("Have a error while login", {

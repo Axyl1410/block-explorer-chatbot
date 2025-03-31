@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/components/common/theme-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
@@ -7,8 +8,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThirdwebProvider>
       <NextTopLoader />
-      <Toaster closeButton position="top-right" />
-      <SidebarProvider defaultOpen>{children}</SidebarProvider>
+      <ThemeProvider attribute="class" defaultTheme="system">
+        <Toaster closeButton position="top-right" />
+        <SidebarProvider defaultOpen>{children}</SidebarProvider>
+      </ThemeProvider>
     </ThirdwebProvider>
   );
 }

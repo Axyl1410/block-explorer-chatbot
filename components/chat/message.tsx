@@ -18,7 +18,7 @@ export function Message({ message }: MessageProps) {
       )}
       {message.botMessage && (
         <div className="mb-2 flex justify-start">
-          <div className="rounded-lg bg-slate-50 p-3">
+          <div className="rounded-lg bg-neutral-50 p-3 dark:bg-neutral-900">
             <ScrollArea className="max-w-[288px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[600px] xl:max-w-[700px] 2xl:max-w-[800px]">
               <ReactMarkdown unwrapDisallowed={false}>
                 {message.botMessage}
