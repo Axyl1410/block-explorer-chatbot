@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import Providers from "./provider";
+import { ModeToggle } from "@/components/common/theme-toggle";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -29,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
           "font-[family-name:var(--font-poppins)] antialiased",
@@ -42,6 +43,7 @@ export default function RootLayout({
             <header className="fixed top-0 z-10">
               <SidebarTrigger />
               <ChatSetting />
+              <ModeToggle />
             </header>
             <main className="w-full">{children}</main>
           </SidebarInset>
