@@ -46,9 +46,39 @@ const frameworks = [
     chainId: 8453,
   },
   {
+    value: "avalanche",
+    label: "Avalanche C-Chain",
+    chainId: 43114,
+  },
+  {
+    value: "binance",
+    label: "BNB Smart Chain",
+    chainId: 56,
+  },
+  {
+    value: "fantom",
+    label: "Fantom Opera",
+    chainId: 250,
+  },
+  {
+    value: "zksync",
+    label: "zkSync Era",
+    chainId: 324,
+  },
+  {
+    value: "celo",
+    label: "Celo",
+    chainId: 42220,
+  },
+  {
     value: "sepolia",
     label: "Sepolia (Testnet)",
     chainId: 11155111,
+  },
+  {
+    value: "goerli",
+    label: "Goerli (Testnet)",
+    chainId: 5,
   },
 ];
 

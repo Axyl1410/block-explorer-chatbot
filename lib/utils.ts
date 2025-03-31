@@ -24,3 +24,7 @@ export const formatAddress = (address: string) => {
     address.length - 4,
   )}`;
 };
+
+export const isAddress = (address: string) => {
+  return !/^0x[a-fA-F0-9]{40}$/.test(address);
+};
