@@ -32,6 +32,7 @@ interface ChatState {
 
   // Reset store
   reset: () => void;
+  resetContext: () => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({

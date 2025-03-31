@@ -1,8 +1,10 @@
 "use client";
 
 import { ChatForm } from "@/components/chat/chat-form";
+import { Context } from "@/components/chat/context";
 import { Message } from "@/components/chat/message";
 import { Loading } from "@/components/common/loading";
+import { ConnectButton } from "@/components/thirdweb/connect-button";
 import { useChatStore } from "@/store/use-chat-store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -10,7 +12,7 @@ import { toast } from "sonner";
 export const dynamic = "force-dynamic";
 
 export default function ChatPage() {
-  const { sessionId, messages, isChat, setMessages, setIsLoading } =
+  const { sessionId, messages, isChat, setMessages, setIsLoading, userId } =
     useChatStore();
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -70,11 +72,21 @@ export default function ChatPage() {
           messages.map((msg) => <Message key={msg._id} message={msg} />)
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-gray-500">
-            <p className="px-4 text-center">
-              {sessionId
-                ? "No messages yet. Start a conversation!"
-                : "Select a conversation or start a new one"}
-            </p>
+            <div className="px-4 text-center">
+              {!userId ? (
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <p>Please log in to start a conversation</p>
+                  <ConnectButton />
+                </div>
+              ) : sessionId ? (
+                <div className="flex flex-col gap-2">
+                  <p>You can provide context to Nebula for your prompts</p>
+                  <Context />
+                </div>
+              ) : (
+                "Select a conversation or start a new one"
+              )}
+            </div>
           </div>
         )}
         {isChat && (

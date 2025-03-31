@@ -152,6 +152,9 @@ export function ChatForm() {
           </Button>
         </div>
       </div>
+      <p className="text-muted-foreground flex items-center justify-center text-sm">
+        Nebula may make mistakes. Please use with discretion
+      </p>
     </div>
   );
 }
