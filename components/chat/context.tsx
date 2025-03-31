@@ -2,7 +2,7 @@ import { isAddress } from "@/lib/utils";
 import { useChatStore } from "@/store/use-chat-store";
 import { useState } from "react";
 import { toast } from "sonner";
-import { SelectChain } from "../common/select-chain";
+import { SelectChain } from "./select-chain";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
