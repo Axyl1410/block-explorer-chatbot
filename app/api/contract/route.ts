@@ -9,8 +9,6 @@ import Message from "@/models/message";
 import { createSession, queryContract } from "@/utils/nebula-utils";
 import { NextRequest } from "next/server";
 
-export const dynamic = "force-dynamic";
-
 export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
