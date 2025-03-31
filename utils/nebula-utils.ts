@@ -1,5 +1,5 @@
-import { apiRequest } from "./apiRequest";
 import { validate as validateUUID } from "uuid";
+import { apiRequest } from "./apiRequest";
 
 export async function createSession(
   title = "Smart Contract Explorer",
