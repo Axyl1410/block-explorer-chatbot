@@ -1,4 +1,4 @@
-import { isAddress } from "@/lib/utils";
+import { formatAddress, isAddress } from "@/lib/utils";
 import { useChatStore } from "@/store/use-chat-store";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -160,7 +160,9 @@ export const Context = () => {
         <p>Contract Address</p>
         <p className="text-muted-foreground text-sm">
           Current address:{" "}
-          {storedContractAddress ? storedContractAddress : "none"}
+          {storedContractAddress
+            ? formatAddress(storedContractAddress)
+            : "none"}
         </p>
       </div>
 

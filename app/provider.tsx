@@ -8,7 +8,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThirdwebProvider>
       <NextTopLoader />
-      <ThemeProvider attribute="class" defaultTheme="system">
+      <ThemeProvider attribute="class" defaultTheme="light">
         <Toaster closeButton position="top-right" />
         <SidebarProvider defaultOpen>{children}</SidebarProvider>
       </ThemeProvider>

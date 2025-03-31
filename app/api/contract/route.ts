@@ -4,9 +4,12 @@ import {
   createResponse,
   getErrorMessage,
 } from "@/lib/utils";
-import Conversation from "@/models/conversation";
-import Message from "@/models/message";
-import { createSession, queryContract } from "@/utils/nebula-utils";
+import {
+  getContractDetails,
+  saveUserMessage,
+  saveBotMessage,
+} from "@/utils/message-utils";
+import { ensureValidSession } from "@/utils/session-utils";
 import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -32,48 +35,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let sessionId;
-    let isNewSession = false;
-
     try {
-      // Create a new session if none exists
-      if (!initialSessionId) {
-        isNewSession = true;
-        sessionId = await createSession();
+      // Ensure we have a valid session
+      const { sessionId, isNewSession } = await ensureValidSession(
+        userId,
+        initialSessionId,
+        `Contract ${contractAddress.substring(0, 8)}... on Chain ${chainId}`,
+        { contractAddress, chainId },
+      );
 
-        await Conversation.create({
-          userId,
-          sessionId,
-          title: `Contract ${contractAddress.substring(0, 8)}... on Chain ${chainId}`,
-          lastChatTime: new Date(),
-        });
-      } else {
-        // Check if the sessionId exists in our database
-        const existingConversation = await Conversation.findOne({
-          sessionId: initialSessionId,
-        });
-
-        if (!existingConversation) {
-          // If session doesn't exist, create a new one
-          isNewSession = true;
-          sessionId = await createSession();
-
-          await Conversation.create({
-            userId,
-            sessionId,
-            title: `Contract ${contractAddress.substring(0, 8)}... on Chain ${chainId}`,
-            lastChatTime: new Date(),
-          });
-        } else {
-          // Use the existing session
-          sessionId = initialSessionId;
-        }
-      }
-
-      // Query the contract details using our utility function
-      const contractDetails = await queryContract(
+      // Query the contract details
+      const contractDetails = await getContractDetails(
         contractAddress,
-        Number(chainId),
+        chainId,
         sessionId,
       );
 
@@ -81,28 +55,17 @@ export async function POST(req: NextRequest) {
       const systemMessage = `Context updated to Contract: ${contractAddress} on Chain ID: ${chainId}`;
 
       // Save system message to database
-      const systemMessageDoc = await Message.create({
+      const systemMessageDoc = await saveUserMessage(
         userId,
         sessionId,
-        userMessage: systemMessage,
-        botMessage: null,
-        timestamp: new Date(),
-      });
+        systemMessage,
+      );
 
       // Save contract details as bot response
-      const botMessageDoc = await Message.create({
+      const botMessageDoc = await saveBotMessage(
         userId,
         sessionId,
-        userMessage: null,
-        botMessage: contractDetails,
-        timestamp: new Date(),
-      });
-
-      // Update conversation's last chat time
-      await Conversation.findOneAndUpdate(
-        { sessionId },
-        { lastChatTime: new Date() },
-        { new: true },
+        contractDetails,
       );
 
       return createResponse(
