@@ -59,7 +59,6 @@ export async function queryContract(
   const requestBody = {
     message,
     session_id: sessionId,
-    stream: true,
     context_filter: {
       chain_ids: [chainId.toString()],
       contract_addresses: [contractAddress],
@@ -82,7 +81,6 @@ export async function handleUserMessage(
   const response = await apiRequest("/chat", "POST", {
     message: userMessage,
     session_id: sessionId,
-    stream: true,
     context_filter: {
       chain_ids: [chainId],
       contract_addresses: [contractAddress],
@@ -102,7 +100,6 @@ export async function handleGeneralUserMessage(
   const response = await apiRequest("/chat", "POST", {
     message: userMessage,
     session_id: sessionId,
-    stream: true,
   });
   return response.message;
 }
