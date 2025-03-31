@@ -13,8 +13,6 @@ import {
 } from "@/utils/nebula-utils";
 import { NextRequest } from "next/server";
 
-export const dynamic = "force-dynamic";
-
 // Send message and get bot response
 export async function POST(req: NextRequest) {
   try {

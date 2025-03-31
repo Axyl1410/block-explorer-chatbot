@@ -1,15 +1,13 @@
 import connectToDatabase from "@/lib/mongodb";
 import {
-  createResponse,
   createErrorResponse,
+  createResponse,
   getErrorMessage,
 } from "@/lib/utils";
 import Conversation from "@/models/conversation";
 import Message from "@/models/message";
 import { createSession, deleteSession } from "@/utils/nebula-utils";
 import { NextRequest } from "next/server";
-
-export const dynamic = "force-dynamic";
 
 // Maximum number of conversations per user
 const MAX_CONVERSATIONS_PER_USER = 5;
