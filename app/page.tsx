@@ -18,19 +18,21 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom of messages
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   // Fetch message history for a session
   const fetchMessages = useCallback(
     async (selectedSessionId: string) => {
+      if (!selectedSessionId) return;
+
       try {
         setIsLoadingMessages(true);
         const res = await fetch(`/api/chat?sessionId=${selectedSessionId}`);
         const data = await res.json();
+
         if (data.success) {
-          // Access nested messages data
           setMessages(data.data.messages);
         } else {
           console.error("Error fetching messages:", data.error);
@@ -43,7 +45,7 @@ export default function ChatPage() {
         toast.error("Failed to load messages");
       } finally {
         setIsLoadingMessages(false);
-        setIsLoading(false); // Make sure to reset main loading state
+        setIsLoading(false);
       }
     },
     [setMessages, setIsLoading],
@@ -56,39 +58,51 @@ export default function ChatPage() {
     }
   }, [sessionId, fetchMessages]);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
+
+  const renderContent = () => {
+    if (isLoadingMessages && sessionId) {
+      return (
+        <div className="flex h-full w-full items-center justify-center">
+          <Loading text="Loading conversation..." />
+        </div>
+      );
+    }
+
+    if (messages.length > 0) {
+      return messages.map((msg) => <Message key={msg._id} message={msg} />);
+    }
+
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-gray-500">
+        <div className="px-4 text-center">
+          {!userId ? (
+            <div className="flex flex-col items-center justify-center gap-2">
+              <p>Please log in to start a conversation</p>
+              <ConnectButton />
+            </div>
+          ) : sessionId ? (
+            <div className="flex flex-col gap-2">
+              <p>You can provide context to Nebula for your prompts</p>
+              <Context />
+            </div>
+          ) : (
+            "Select a conversation or start a new one"
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="mx-auto flex h-screen max-w-[800px] flex-col px-2">
       {/* Chat area */}
       <div className="flex-1 pt-4">
-        {isLoadingMessages && sessionId ? (
-          <div className="flex h-full w-full items-center justify-center">
-            <Loading text="Loading conversation..." />
-          </div>
-        ) : messages.length > 0 ? (
-          messages.map((msg) => <Message key={msg._id} message={msg} />)
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-gray-500">
-            <div className="px-4 text-center">
-              {!userId ? (
-                <div className="flex flex-col items-center justify-center gap-2">
-                  <p>Please log in to start a conversation</p>
-                  <ConnectButton />
-                </div>
-              ) : sessionId ? (
-                <div className="flex flex-col gap-2">
-                  <p>You can provide context to Nebula for your prompts</p>
-                  <Context />
-                </div>
-              ) : (
-                "Select a conversation or start a new one"
-              )}
-            </div>
-          </div>
-        )}
+        {renderContent()}
+
         {isChat && (
           <div className="mb-2 ml-2 flex justify-start">
             <div className="rounded-lg bg-gray-100 p-3">
