@@ -2,21 +2,25 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Message as MessageType } from "@/types";
 import { Check, Copy } from "lucide-react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 interface MessageProps {
   message: MessageType;
 }
 
-export function Message({ message }: MessageProps) {
+export const Message = memo(function Message({ message }: MessageProps) {
   const [copied, setCopied] = useState(false);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+      const timer = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(timer);
+    } catch (error) {
+      console.error("Failed to copy text: ", error);
+    }
   };
 
   return (
@@ -61,4 +65,4 @@ export function Message({ message }: MessageProps) {
       )}
     </div>
   );
-}
+});

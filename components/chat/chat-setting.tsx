@@ -34,7 +34,7 @@ export const ChatSetting: React.FC<ChatSettingProps> = ({
             <Button
               variant="ghost"
               size="icon"
-              className={cn("size-7", className)}
+              className={cn("size-8", className)}
               {...props}
             >
               <Settings />

@@ -24,13 +24,15 @@ export function ConversationsList() {
 
   // Fetch conversation history
   const fetchConversations = useCallback(async () => {
+    if (!userId) return;
+
     try {
       setIsFetchingConversations(true);
       const res = await fetch(`/api/conversations?userId=${userId}`);
       const data = await res.json();
+
       if (data.success) {
         setConversations(data.data);
-
         // If we have conversations but no active session, select the most recent one
         if (data.data.length > 0 && !sessionId) {
           setSessionId(data.data[0].sessionId);
@@ -48,22 +50,24 @@ export function ConversationsList() {
       setIsFetchingConversations(false);
     }
   }, [
-    setIsFetchingConversations,
     userId,
-    setConversations,
     sessionId,
+    setConversations,
     setSessionId,
+    setIsFetchingConversations,
   ]);
 
   // Fetch message history for a session
   const fetchMessages = useCallback(
     async (selectedSessionId: string) => {
+      if (!selectedSessionId) return;
+
       try {
         setIsFetchingMessages(true);
         const res = await fetch(`/api/chat?sessionId=${selectedSessionId}`);
         const data = await res.json();
+
         if (data.success) {
-          // Access nested messages data
           setMessages(data.data.messages);
         } else {
           toast.error("Failed to load messages", {
@@ -83,9 +87,10 @@ export function ConversationsList() {
 
   // Create a new conversation
   const startNewConversation = async () => {
+    if (!userId) return;
+
     try {
       setIsLoading(true);
-
       const res = await fetch("/api/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,11 +103,9 @@ export function ConversationsList() {
       const data = await res.json();
 
       if (data.success) {
-        // Access conversation data from nested response
         setSessionId(data.data.conversation.sessionId);
         setMessages([]);
 
-        // Show notification if we reached the limit
         if (data.data.reachedLimit) {
           toast.warning(
             "Your oldest conversation was removed to make room for this new one.",
@@ -125,13 +128,14 @@ export function ConversationsList() {
   };
 
   // Select a conversation
-  const selectConversation = (selectedSessionId: string) => {
-    if (isLoading || selectedSessionId === sessionId) return;
-
-    setIsLoading(true); // Show loading in chat area
-    setSessionId(selectedSessionId);
-    // Note: Messages will be loaded in the ChatPage component via useEffect
-  };
+  const selectConversation = useCallback(
+    (selectedSessionId: string) => {
+      if (isLoading || selectedSessionId === sessionId) return;
+      setIsLoading(true);
+      setSessionId(selectedSessionId);
+    },
+    [isLoading, sessionId, setIsLoading, setSessionId],
+  );
 
   // Load initial data
   useEffect(() => {
@@ -145,6 +149,10 @@ export function ConversationsList() {
     }
   }, [fetchMessages, sessionId]);
 
+  const isDisabled = isLoading || isFetching || !userId;
+  const buttonText =
+    isFetching || isLoading ? "Loading..." : "New Conversation";
+
   return (
     <div className="flex h-full flex-col">
       <div className="mb-4 flex items-center justify-between">
@@ -152,14 +160,10 @@ export function ConversationsList() {
           onClick={startNewConversation}
           variant="outline"
           size="sm"
-          disabled={isLoading || isFetching || !userId}
+          disabled={isDisabled}
           className="bg-sidebar w-full"
         >
-          {isFetching
-            ? "Loading..."
-            : isLoading
-              ? "Loading..."
-              : "New Conversation"}
+          {buttonText}
         </Button>
       </div>
 
@@ -170,22 +174,26 @@ export function ConversationsList() {
           </div>
         ) : (
           <ul className="space-y-2">
-            {conversations.map((conv) => (
-              <li
-                key={conv.sessionId}
-                onClick={() => selectConversation(conv.sessionId)}
-                className={`cursor-pointer rounded p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
-                  sessionId === conv.sessionId ? "border" : ""
-                } ${isLoading || isFetchingMessages ? "pointer-events-none opacity-50" : ""}`}
-              >
-                <div className="font-medium">
-                  {conv.title || `Chat ${conv._id.substring(0, 8)}`}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {new Date(conv.lastChatTime).toLocaleString()}
-                </div>
-              </li>
-            ))}
+            {conversations.map((conv) => {
+              const isActive = sessionId === conv.sessionId;
+              const isInteractionDisabled = isLoading || isFetchingMessages;
+
+              return (
+                <li
+                  key={conv.sessionId}
+                  onClick={() => selectConversation(conv.sessionId)}
+                  className={`cursor-pointer rounded p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 ${isActive ? "border" : ""} ${isInteractionDisabled ? "pointer-events-none opacity-50" : ""}`}
+                >
+                  <div className="font-medium">
+                    {conv.title || `Chat ${conv._id.substring(0, 8)}`}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {new Date(conv.lastChatTime).toLocaleString()}
+                  </div>
+                </li>
+              );
+            })}
+
             {conversations.length === 0 && !isFetching && (
               <li className="py-4 text-center text-gray-500">
                 No conversations yet
