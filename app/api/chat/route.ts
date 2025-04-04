@@ -7,9 +7,9 @@ import {
 import Conversation from "@/models/conversation";
 import Message from "@/models/message";
 import {
-  saveUserMessage,
   getNebulaResponse,
   saveBotMessage,
+  saveUserMessage,
 } from "@/utils/message-utils";
 import { ensureValidSession } from "@/utils/session-utils";
 import { NextRequest } from "next/server";
@@ -36,70 +36,70 @@ export async function POST(req: NextRequest) {
       return createErrorResponse("No user message provided", 400);
     }
 
-    try {
-      // Ensure we have a valid session
-      const { sessionId, isNewSession } = await ensureValidSession(
-        userId,
-        initialSessionId,
-        undefined,
-        { contractAddress, chainId },
-      );
+    // Consolidate error handling
+    // Ensure we have a valid session
+    const { sessionId, isNewSession } = await ensureValidSession(
+      userId,
+      initialSessionId,
+      undefined,
+      { contractAddress, chainId },
+    );
 
-      // Save user message to database
-      const userMessageDoc = await saveUserMessage(
-        userId,
-        sessionId,
-        userMessage,
-      );
+    // Save user message to database - start this operation immediately
+    const userMessagePromise = saveUserMessage(userId, sessionId, userMessage);
 
-      // Get response from Nebula
-      const { response, newSessionId } = await getNebulaResponse(
-        userMessage,
-        sessionId,
-        chainId,
-        contractAddress,
-      );
+    // Start getting Nebula response in parallel
+    const nebulaResponsePromise = getNebulaResponse(
+      userMessage,
+      sessionId,
+      chainId,
+      contractAddress,
+    );
 
-      // If we got a new session ID from error recovery, update references
-      let finalSessionId = sessionId;
-      if (newSessionId) {
+    // Await both operations in parallel
+    const [userMessageDoc, { response, newSessionId }] = await Promise.all([
+      userMessagePromise,
+      nebulaResponsePromise,
+    ]);
+
+    // If we got a new session ID from error recovery, update references
+    let finalSessionId = sessionId;
+    if (newSessionId) {
+      // Run these operations in parallel
+      await Promise.all([
         // Update our database with the new session ID
-        await Conversation.findOneAndUpdate(
+        Conversation.findOneAndUpdate(
           { sessionId },
           { sessionId: newSessionId },
           { new: true },
-        );
-
+        ),
         // Update user message with new session ID
-        await Message.updateMany({ sessionId }, { sessionId: newSessionId });
+        Message.updateMany({ sessionId }, { sessionId: newSessionId }),
+      ]);
 
-        // Use the new session ID going forward
-        finalSessionId = newSessionId;
-      }
-
-      // Save bot response to database
-      const botMessageDoc = await saveBotMessage(
-        userId,
-        finalSessionId,
-        response,
-      );
-
-      return createResponse(
-        {
-          userMessage: userMessageDoc,
-          botMessage: botMessageDoc,
-          sessionId: finalSessionId,
-          isNewSession,
-        },
-        true,
-        201,
-      );
-    } catch (error) {
-      console.error("Session handling error:", error);
-      return createErrorResponse(getErrorMessage(error), 500);
+      // Use the new session ID going forward
+      finalSessionId = newSessionId;
     }
+
+    // Save bot response to database
+    const botMessageDoc = await saveBotMessage(
+      userId,
+      finalSessionId,
+      response,
+    );
+
+    return createResponse(
+      {
+        userMessage: userMessageDoc,
+        botMessage: botMessageDoc,
+        sessionId: finalSessionId,
+        isNewSession,
+      },
+      true,
+      201,
+    );
   } catch (error) {
-    console.error("Error processing message:", error);
+    console.error("Error in chat API:", error);
     return createErrorResponse(getErrorMessage(error), 500);
   }
 }
@@ -108,28 +108,22 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
-    const { searchParams } = new URL(req.url);
-    const sessionId = searchParams.get("sessionId");
+    const sessionId = new URL(req.url).searchParams.get("sessionId");
 
     if (!sessionId) {
       return createErrorResponse("sessionId is required", 400);
     }
 
-    // Check if the session exists
-    const conversation = await Conversation.findOne({ sessionId });
+    const [conversation, messages] = await Promise.all([
+      Conversation.findOne({ sessionId }),
+      Message.find({ sessionId }).sort({ timestamp: 1 }).lean(),
+    ]);
+
     if (!conversation) {
       return createErrorResponse("Session not found", 404);
     }
 
-    // Get messages for this session
-    const messages = await Message.find({ sessionId })
-      .sort({ timestamp: 1 })
-      .lean();
-
-    return createResponse({
-      messages,
-      conversation,
-    });
+    return createResponse({ messages, conversation });
   } catch (error) {
     console.error("Error fetching messages:", error);
     return createErrorResponse(getErrorMessage(error), 500);

@@ -105,7 +105,7 @@ export default function ChatPage() {
 
         {isChat && (
           <div className="mb-2 ml-2 flex justify-start">
-            <div className="rounded-lg bg-gray-100 p-3">
+            <div className="rounded-lg bg-gray-100 p-3 dark:bg-neutral-900">
               <Loading text="Thinking..." />
             </div>
           </div>

@@ -24,7 +24,11 @@ export async function GET(req: NextRequest) {
       return createErrorResponse("Please Login for chat", 400);
     }
 
-    const conversations = await Conversation.find({ userId })
+    // Only select fields we actually need to return
+    const conversations = await Conversation.find(
+      { userId },
+      { sessionId: 1, title: 1, lastChatTime: 1 },
+    )
       .sort({ lastChatTime: -1 })
       .lean();
 
@@ -60,7 +64,7 @@ export async function POST(req: NextRequest) {
         // Get the sessionId to delete associated messages
         const oldSessionId = oldestConversation.sessionId;
 
-        // Delete the session from Nebula API first
+        // Perform database operations in parallel while still handling Nebula API
         try {
           await deleteSession(oldSessionId);
           console.log(`Deleted Nebula session ${oldSessionId}`);
@@ -69,14 +73,13 @@ export async function POST(req: NextRequest) {
             `Failed to delete Nebula session: ${oldSessionId}`,
             deleteError,
           );
-          // Continue with cleanup even if Nebula API call fails
         }
 
-        // Delete the oldest conversation from our database
-        await Conversation.deleteOne({ _id: oldestConversation._id });
-
-        // Delete all messages associated with this conversation
-        await Message.deleteMany({ sessionId: oldSessionId });
+        // Run database operations in parallel
+        await Promise.all([
+          Conversation.deleteOne({ _id: oldestConversation._id }),
+          Message.deleteMany({ sessionId: oldSessionId }),
+        ]);
 
         console.log(
           `Deleted oldest conversation (${oldSessionId}) for user ${userId} to stay within limit of ${MAX_CONVERSATIONS_PER_USER}`,
@@ -129,22 +132,23 @@ export async function DELETE(req: NextRequest) {
       return createErrorResponse("Conversation not found", 404);
     }
 
-    // Delete from Nebula API
-    try {
-      await deleteSession(sessionId);
-    } catch (deleteError) {
-      console.error(
-        `Failed to delete Nebula session: ${sessionId}`,
-        deleteError,
-      );
-      // Continue with database cleanup even if Nebula API call fails
-    }
+    const nebulaDeletePromise = deleteSession(sessionId).catch(
+      (deleteError) => {
+        console.error(
+          `Failed to delete Nebula session: ${sessionId}`,
+          deleteError,
+        );
+        // Return null to avoid breaking Promise.all
+        return null;
+      },
+    );
 
-    // Delete from our database
-    await Conversation.deleteOne({ sessionId, userId });
-
-    // Delete associated messages
-    await Message.deleteMany({ sessionId });
+    // Run all deletion operations in parallel
+    await Promise.all([
+      nebulaDeletePromise,
+      Conversation.deleteOne({ sessionId, userId }),
+      Message.deleteMany({ sessionId }),
+    ]);
 
     return createResponse({ deleted: true, sessionId });
   } catch (error) {
