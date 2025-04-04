@@ -2,20 +2,20 @@
 const API_BASE_URL = "https://nebula-api.thirdweb.com";
 const NEBULA_SECRET_KEY = process.env.NEBULA_SECRET_KEY;
 
-if (!NEBULA_SECRET_KEY) {
-  throw new Error("SECRET_KEY is not defined");
-}
-
 export async function apiRequest(
   endpoint: string,
   method: string,
   body: any = {},
 ): Promise<any> {
+  if (!NEBULA_SECRET_KEY) {
+    throw new Error("SECRET_KEY is not defined");
+  }
+
   const response = await fetch(API_BASE_URL + endpoint, {
     method,
     headers: {
       "Content-Type": "application/json",
-      "x-secret-key": NEBULA_SECRET_KEY as string,
+      "x-secret-key": NEBULA_SECRET_KEY,
     },
     body: Object.keys(body).length ? JSON.stringify(body) : undefined,
   });

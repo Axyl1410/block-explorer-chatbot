@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import { ConnectButton } from "../thirdweb/connect-button";
 import { Button } from "../ui/button";
 import { Team } from "./team";
+import { CircleArrowOutUpRightIcon } from "lucide-react";
 
 export function SidebarLeft() {
   const { toggleSidebar, isMobile } = useSidebar();
@@ -57,6 +58,20 @@ export function SidebarLeft() {
               </SidebarGroupContent>
             </>
           )}
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupContent className="hover:bg-neutral-100 dark:hover:bg-neutral-800">
+            <a
+              href="https://t.me/NebulaExploreBot"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div className="flex items-center justify-center gap-2 p-2">
+                <CircleArrowOutUpRightIcon size={16} />
+                <p>Try with Telegram</p>
+              </div>
+            </a>
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-dashed">
