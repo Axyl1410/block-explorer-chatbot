@@ -18,7 +18,7 @@ export default function GlobalError({
           </p>
           <div className="grid grid-cols-2 items-center justify-center gap-2">
             <a
-              href="https://github.com/Axyl1410/store-nations-clone/issues/new"
+              href="https://github.com/Axyl1410/block-explorer-chatbot/issues/new"
               target="_blank"
               rel="noopener noreferrer"
             >

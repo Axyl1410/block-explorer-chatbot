@@ -66,7 +66,7 @@ export function SidebarLeft() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <div className="flex items-center justify-center gap-2 p-2">
+              <div className="flex items-center gap-2 p-2">
                 <CircleArrowOutUpRightIcon size={16} />
                 <p>Try with Telegram</p>
               </div>

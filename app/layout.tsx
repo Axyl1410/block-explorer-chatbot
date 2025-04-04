@@ -47,7 +47,7 @@ export default function RootLayout({
             </header>
             <main className="w-full">{children}</main>
           </SidebarInset>
-          <ScrollDown />
+          <ScrollDown className="dark:bg-neutral-900" />
         </Providers>
       </body>
     </html>

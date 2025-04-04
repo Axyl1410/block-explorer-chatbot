@@ -44,8 +44,8 @@ export async function POST(req: NextRequest) {
         { contractAddress, chainId },
       );
 
-      // Query the contract details
-      const contractDetails = await getContractDetails(
+      // Query the contract details (start this first)
+      const contractDetailsPromise = getContractDetails(
         contractAddress,
         chainId,
         sessionId,
@@ -54,14 +54,20 @@ export async function POST(req: NextRequest) {
       // Create a system message about the contract update
       const systemMessage = `Context updated to Contract: ${contractAddress} on Chain ID: ${chainId}`;
 
-      // Save system message to database
-      const systemMessageDoc = await saveUserMessage(
+      // Save system message to database (start this in parallel)
+      const systemMessagePromise = saveUserMessage(
         userId,
         sessionId,
         systemMessage,
       );
 
-      // Save contract details as bot response
+      // Await both promises in parallel
+      const [contractDetails, systemMessageDoc] = await Promise.all([
+        contractDetailsPromise,
+        systemMessagePromise,
+      ]);
+
+      // Once we have contract details, save the bot response
       const botMessageDoc = await saveBotMessage(
         userId,
         sessionId,
